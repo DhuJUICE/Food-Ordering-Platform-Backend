@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from django.shortcuts import render
-
+from django.http import JsonResponse
 # order_management/services.py (or utils.py)
 from .models import ORDER
 from cart_management.models import CART
@@ -31,6 +30,7 @@ def create_order_from_cart(user, payment_method="card"):
 
     except CART.DoesNotExist:
         return None
+
 
 #allow users to track their order status/progress
 def get_user_orders(request, user_id):
