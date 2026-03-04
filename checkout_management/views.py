@@ -41,11 +41,20 @@ def checkout(request):
         # Remove extra fields before validation
         data.pop("orderNumber", None)       # remove if it exists
         data.pop("deliveryMethod", None)    # remove if it exists
+        #-------------------------------
+        #CREATE ORDER IN DATABASE
+        user = User.objects.get(id=request.user.id)  # map from your IPN payload
 
-        print(data)
+        # ✅ Call the function from order_management
+        order = create_order_from_cart(user, payment_method="card")
+
+        if order:
+            print(f"ORDER #{order.id} created successfully!")
+        else:
+            print("Failed to create order or cart empty.")
+        #------------------------------
         # Build PayFast payload
         payload = {
-            "identifier": str(request.user.id),
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
             "return_url": "https://heranbites.onrender.com/#/success",
@@ -85,19 +94,8 @@ def payfast_ipn(request):
         data=data
     )
 
-    response.text = "VALID"
     if response.text == "VALID":
-        if data.get("payment_status") == "COMPLETE":
-            user = User.objects.get(id=int(data.get("identifier")))  # map from your IPN payload
-
-            # ✅ Call the function from order_management
-            order = create_order_from_cart(user, payment_method="card")
-
-            if order:
-                print(f"ORDER #{order.id} created successfully!")
-            else:
-                print("Failed to create order or cart empty.")
-                
+        if data.get("payment_status") == "COMPLETE":                
             #successful payment message
             print("Successful payment")
             return HttpResponse("Payment received", status=200)
