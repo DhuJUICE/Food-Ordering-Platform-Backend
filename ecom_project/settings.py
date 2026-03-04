@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 	'product_management',
 	'cart_management',
 	'checkout_management',
+	'order_management',
+
 	'api_management',
 
 	'rest_framework',

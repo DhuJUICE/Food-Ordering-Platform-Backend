@@ -9,6 +9,11 @@ from urllib.parse import quote_plus, unquote_plus
 import requests
 from urllib.parse import urlencode
 
+#import models for creating the order
+from order_management.views import create_order_from_cart
+from django.contrib.auth.models import User
+
+
 # PayFast credentials
 PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
 PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
@@ -40,6 +45,7 @@ def checkout(request):
         print(data)
         # Build PayFast payload
         payload = {
+            "identifier": str(request.user.id),
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
             "return_url": "https://heranbites.onrender.com/#/success",
@@ -72,7 +78,6 @@ def payfast_ipn(request):
     raw_body = request.body.decode("utf-8")
     data = {k: v for k, v in [pair.split('=') for pair in raw_body.split('&') if '=' in pair]}
 
-    
 
     # Validate with PayFast
     response = requests.post(
@@ -82,6 +87,17 @@ def payfast_ipn(request):
 
     if response.text == "VALID":
         if data.get("payment_status") == "COMPLETE":
+            user = User.objects.get(id=int(data.get("identifier")))  # map from your IPN payload
+
+            # ✅ Call the function from order_management
+            order = create_order_from_cart(user, payment_method="card")
+
+            if order:
+                print(f"ORDER #{order.id} created successfully!")
+            else:
+                print("Failed to create order or cart empty.")
+                
+            #successful payment message
             print("Successful payment")
             return HttpResponse("Payment received", status=200)
         else:
