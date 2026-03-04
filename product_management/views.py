@@ -1,18 +1,14 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.response import Response
-
-# Models
+from django.contrib.auth.models import User
 from .models import PRODUCT
-
-# Serializers
 from api_management.serializers import ProductSerializer
 
-
-# PRODUCT MANAGEMENT API ENDPOINTS
 class ProductManagement(APIView):
-    permission_classes = [AllowAny]
+    """
+    Core logic for product management (CRUD operations)
+    """
 
     def get(self, request, pk=None):
         if pk:
@@ -27,13 +23,24 @@ class ProductManagement(APIView):
             serializer = ProductSerializer(products, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        data = request.data.copy()
+        data['moderation_status'] = 'pending'  # optional
+
+        serializer = ProductSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(uploadUser=request.user)  # ✅ assign FK here
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, pk):
         try:
             product = PRODUCT.objects.get(pk=pk)
         except PRODUCT.DoesNotExist:
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = ProductSerializer(product, data=request.data)
+
+        serializer = ProductSerializer(product, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

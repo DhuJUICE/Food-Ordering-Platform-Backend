@@ -45,7 +45,7 @@ def checkout(request):
         #CREATE ORDER IN DATABASE
         user = User.objects.get(id=request.user.id)  # map from your IPN payload
 
-        # ✅ Call the function from order_management
+        #Call the function from order_management
         order = create_order_from_cart(user, payment_method="card")
 
         if order:

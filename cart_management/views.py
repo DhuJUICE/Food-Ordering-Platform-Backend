@@ -13,18 +13,6 @@ class CartManagement(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
-        """
-        Handles all cart operations: add, remove, increment, decrement.
-        Request body should contain:
-        {
-            "action": "add|remove|increment|decrement",
-            "productId": "<id>",
-            "quantity": <optional, for add>
-            "prodName": "<name>",       # required for add
-            "prodPrice": "<price>",     # required for add
-            "prodImagePath": "<image>"  # required for add
-        }
-        """
         try:
             user = request.user
             data = request.data
