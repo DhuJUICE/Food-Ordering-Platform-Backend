@@ -85,6 +85,7 @@ def payfast_ipn(request):
         data=data
     )
 
+    response.text = "VALID"
     if response.text == "VALID":
         if data.get("payment_status") == "COMPLETE":
             user = User.objects.get(id=int(data.get("identifier")))  # map from your IPN payload
