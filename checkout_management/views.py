@@ -9,6 +9,8 @@ from urllib.parse import quote_plus, unquote_plus
 import requests
 from urllib.parse import urlencode
 
+from urllib.parse import parse_qs
+
 #import models for creating the order
 from order_management.views import create_order_from_cart
 from django.contrib.auth.models import User
@@ -42,24 +44,17 @@ def checkout(request):
         data.pop("orderNumber", None)       # remove if it exists
         data.pop("deliveryMethod", None)    # remove if it exists
         #-------------------------------
-        #CREATE ORDER IN DATABASE
-        user = User.objects.get(id=request.user.id)  # map from your IPN payload
-
-        #Call the function from order_management
-        order = create_order_from_cart(user, payment_method="card")
-
-        if order:
-            print(f"ORDER #{order.id} created successfully!")
-        else:
-            print("Failed to create order or cart empty.")
+        
         #------------------------------
         # Build PayFast payload
         payload = {
+            "custom_str1": str(request.user.id),
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
             "return_url": "https://heranbites.onrender.com/#/success",
             "cancel_url": "https://yourdomain.com/payment-cancel",
-            "notify_url": "https://heranbites-backend.onrender.com/ipn",
+            #"notify_url": "https://heranbites-backend.onrender.com/ipn",
+            "notify_url": "https://professionals-ridge-fast-temperature.trycloudflare.com/ipn",
             "m_payment_id": m_payment_id,
             "amount": "%.2f" % amount,
             "item_name": f"Order #{m_payment_id}",
@@ -85,8 +80,7 @@ def payfast_ipn(request):
 
     # Convert POST body to dict
     raw_body = request.body.decode("utf-8")
-    data = {k: v for k, v in [pair.split('=') for pair in raw_body.split('&') if '=' in pair]}
-
+    data = {k: v[0] for k, v in parse_qs(raw_body).items()}
 
     # Validate with PayFast
     response = requests.post(
@@ -95,9 +89,23 @@ def payfast_ipn(request):
     )
 
     if response.text == "VALID":
-        if data.get("payment_status") == "COMPLETE":                
+        if data.get("payment_status") == "COMPLETE":
             #successful payment message
             print("Successful payment")
+
+            #CREATE ORDER IN DATABASE once payment is successful
+            userId = data.get("custom_str1")
+            user = User.objects.get(id=userId)  # map from your IPN payload
+
+            #Call the function from order_management
+            order = create_order_from_cart(user, payment_method="card")
+
+            if order:
+                print(f"ORDER #{order.id} created successfully!")
+            else:
+                print("Failed to create order or cart empty.")
+
+            
             return HttpResponse("Payment received", status=200)
         else:
             print("Payment not complete")

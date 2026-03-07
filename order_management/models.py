@@ -42,5 +42,10 @@ class ORDER(models.Model):
         help_text="Current status of the order"
     )
 
+    collected = models.BooleanField(
+        default=False,
+        help_text="True if the customer has collected this order"
+    )
+
     def __str__(self):
         return f"Order #{self.id} by {self.user.username} - {self.orderStatus}"

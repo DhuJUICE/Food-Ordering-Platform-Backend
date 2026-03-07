@@ -21,9 +21,15 @@ urlpatterns = [
 	path('api/product', views.ProductManagement.as_view(), name='api-product'),
 	path('api/product/<int:pk>', views.ProductManagement.as_view(), name='api-product-id'),
 
+	#CART MANAGEMENT ROUTES
 	path('api/cart', views.CartManagement.as_view(), name='api-cart'),
 	path('api/cart/<int:pk>', views.CartManagement.as_view(), name='api-cart-id'),
 
 	#CHECKOUT MANAGEMENT API ENDPOINTS
 	path('api/checkout', views.CheckoutManagement.as_view(), name='api-checkout'),
+
+	#ORDER MANAGEMENT ROUTES
+	path('api/orders/all', views.OrderManagement.as_view(), name='api-orders-dashboard'),
+	path('api/orders/<int:pk>', views.OrderManagement.as_view(), name='api-orders-tracking'),
+	path('api/orders/<int:pk>/status', views.OrderManagement.as_view(), name='api-orders-tracking'),
 ]
