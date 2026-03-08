@@ -62,8 +62,12 @@ class CartManagement(APIView):
                         return JsonResponse({"success": False, "error": "Quantity already 1, cannot decrement further"}, status=400)
                 else:
                     return JsonResponse({"success": False, "error": "Product not in cart"}, status=400)
+            elif action == "clear":
+                # Reset the user's cart to an empty dict
+                cart_items = {}
             else:
                 return JsonResponse({"success": False, "error": "Invalid action"}, status=400)
+
 
             cart.menuCartItems = cart_items
             cart.save()

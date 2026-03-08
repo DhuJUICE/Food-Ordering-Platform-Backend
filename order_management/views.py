@@ -45,7 +45,7 @@ def get_user_orders(request, user_id):
 
     try:
         user = User.objects.get(id=user_id)
-        orders = ORDER.objects.filter(user=user).order_by("-id")
+        orders = ORDER.objects.filter(user=user, collected=False).order_by("-id")
 
         order_list = []
 
