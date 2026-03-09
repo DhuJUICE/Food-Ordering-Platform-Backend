@@ -84,10 +84,10 @@ class CheckoutManagement(APIView):
 class TrackOrder(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk=None):
-        if pk:
+    def get(self, request, customer_phone=None):
+        if customer_phone:
             # Redirect to your core function
-            return get_user_orders(request, pk)
+            return get_user_orders(request, customer_phone)
 
 class OrderManagement(APIView):
     permission_classes = [IsAuthenticated]

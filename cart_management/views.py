@@ -10,7 +10,6 @@ class CartManagement(APIView):
             request.session.create()
         
         session_key = request.session.session_key
-        print(session_key)
         cart, _ = CART.objects.get_or_create(session_key=session_key)
         return cart
 

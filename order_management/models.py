@@ -3,8 +3,7 @@ from django.contrib.auth.models import User
 
 class ORDER(models.Model):
     # Guest details
-    customer_name = models.CharField(max_length=100)
-    customer_email = models.EmailField(blank=True, null=True)
+    customer_name = models.CharField(max_length=100, null=True)
     customer_phone = models.CharField(max_length=20)
     
     order_number = models.IntegerField(unique=True, blank=True, null=True)

@@ -7,7 +7,7 @@ from cart_management.models import CART
 from django.contrib.auth.models import User
 from rest_framework import status
 
-def create_order_from_cart(session_key, customer_name, customer_phone, customer_email, payment_method="card"):
+def create_order_from_cart(session_key, customer_name, customer_phone, payment_method="card"):
     try:
         cart = CART.objects.get(session_key=session_key)
 
@@ -19,8 +19,7 @@ def create_order_from_cart(session_key, customer_name, customer_phone, customer_
             paymentMethod=payment_method,
             orderStatus="pending",
             customer_name = customer_name,
-            customer_phone = customer_phone,
-            customer_email = customer_email
+            customer_phone = customer_phone
         )
 
         # Clear the cart after saving
@@ -31,7 +30,6 @@ def create_order_from_cart(session_key, customer_name, customer_phone, customer_
 
     except CART.DoesNotExist:
         return None
-
 
 #allow users to track their order status/progress
 def get_user_orders(request, customer_phone):
@@ -49,7 +47,6 @@ def get_user_orders(request, customer_phone):
                 "items": order.menuCartItems,
                 "status": order.orderStatus,
                 "payment_method": order.paymentMethod,
-
             })
 
         return JsonResponse({"orders": order_list}, status=200)
@@ -95,7 +92,7 @@ def update_orders(request, pk):
 	if not request.session.session_key:
 		request.session.create()
 	session_key = request.session.session_key
-	print(session_key)
+
 	# Update collected if provided
 	if request.data.get("collected") is True:
 		order.collected = True
