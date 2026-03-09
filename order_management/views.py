@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from .models import ORDER
 from cart_management.models import CART
 from django.contrib.auth.models import User
+from rest_framework import status
 
 def create_order_from_cart(session_key, customer_name, customer_phone, customer_email, payment_method="card"):
     try:
@@ -77,27 +78,33 @@ def get_all_orders(request):
 
     return JsonResponse({"orders": order_list}, status=200)
 
-def update_order_status(order_id, new_status):
-    """
-    Update the status of an order.
-    Returns the updated order as a dict or None if invalid.
-    """
-    valid_statuses = ["pending", "preparing", "done", "cancelled"]
+def update_orders(request, pk):
+	if not pk:
+		return JsonResponse({"detail": "Order ID required"}, status=status.HTTP_400_BAD_REQUEST)
+	
+	try:
+		order = ORDER.objects.get(id=pk)
+	except ORDER.DoesNotExist:
+		return JsonResponse({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if new_status not in valid_statuses:
-        return None
+	# Update status if provided
+	status_val = request.data.get("status")
+	if status_val:
+		order.orderStatus = status_val
 
-    try:
-        order = ORDER.objects.get(id=order_id)
-        order.orderStatus = new_status
-        order.save()
+	if not request.session.session_key:
+		request.session.create()
+	session_key = request.session.session_key
+	print(session_key)
+	# Update collected if provided
+	if request.data.get("collected") is True:
+		order.collected = True
+		cart = CART.objects.get(session_key=session_key)
+		cart.delete()
 
-        return {
-            "order_id": order.id,
-            "user_id": order.user.id,
-            "items": order.menuCartItems,
-            "status": order.orderStatus,
-            "payment_method": order.paymentMethod,
-        }
-    except ORDER.DoesNotExist:
-        return None
+	order.save()
+	return JsonResponse({
+		"order_id": order.id,
+		"status": order.orderStatus,
+		"collected": order.collected
+	}, status=status.HTTP_200_OK)

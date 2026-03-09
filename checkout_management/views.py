@@ -64,7 +64,7 @@ def checkout(request):
             "return_url": "http://127.0.0.1:3000/#/success",
             "cancel_url": "https://yourdomain.com/payment-cancel",
             #"notify_url": "https://heranbites-backend.onrender.com/api/ipn",
-            "notify_url": "https://bench-taxi-stories-blend.trycloudflare.com/api/ipn",
+            "notify_url": "https://bid-art-timber-critical.trycloudflare.com/api/ipn",
             "m_payment_id": m_payment_id,
             "amount": "%.2f" % amount,
             "item_name": f"Order #{m_payment_id}",
@@ -103,7 +103,6 @@ def payfast_ipn(request):
             #successful payment message
             print("Successful payment")
             session_key = data.get("custom_str1")
-            print(session_key)
             #CREATE ORDER IN DATABASE once payment is successful
             customer_name = data.get("custom_str2")
             customer_phone = data.get("custom_str3")
