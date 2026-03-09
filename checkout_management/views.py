@@ -39,6 +39,9 @@ def checkout(request):
         amount = float(data.get("totalPurchaseTotal", 0))
         # Generate a unique transaction ID
         m_payment_id = str(data.get("orderNumber"))
+        customer_name = str(data.get("customerName", ""))
+        customer_phone = str(data.get("customerPhone", ""))
+        customer_email = str(data.get("customerEmail",  ""))
 
         # Remove extra fields before validation
         data.pop("orderNumber", None)       # remove if it exists
@@ -49,12 +52,15 @@ def checkout(request):
         # Build PayFast payload
         payload = {
             "custom_str1": str(request.user.id),
+            "custom_str2": customer_name,
+            "custom_str3": customer_phone,
+            "custom_str4": customer_email,
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
-            "return_url": "https://heranbites.onrender.com/#/success",
+            "return_url": "http://127.0.0.1:3000/#/success",
             "cancel_url": "https://yourdomain.com/payment-cancel",
-            #"notify_url": "https://heranbites-backend.onrender.com/ipn",
-            "notify_url": "https://professionals-ridge-fast-temperature.trycloudflare.com/ipn",
+            #"notify_url": "https://heranbites-backend.onrender.com/api/ipn",
+            "notify_url": "https://bench-taxi-stories-blend.trycloudflare.com/api/ipn",
             "m_payment_id": m_payment_id,
             "amount": "%.2f" % amount,
             "item_name": f"Order #{m_payment_id}",
@@ -95,10 +101,14 @@ def payfast_ipn(request):
 
             #CREATE ORDER IN DATABASE once payment is successful
             userId = data.get("custom_str1")
+            customer_name = data.get("custom_str2")
+            customer_phone = data.get("custom_str3")
+            customer_email = data.get("custom_str4")
+
             user = User.objects.get(id=userId)  # map from your IPN payload
 
             #Call the function from order_management
-            order = create_order_from_cart(user, payment_method="card")
+            order = create_order_from_cart(user, customer_name, customer_phone, customer_email, payment_method="card")
 
             if order:
                 print(f"ORDER #{order.id} created successfully!")

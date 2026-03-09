@@ -2,13 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class ORDER(models.Model):
-    """
-    Represents a customer order in the system.
-    Stores what was ordered, by whom, payment info, and order status.
-    """
-
     # Reference to the user who made the order
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # Guest details
+    customer_name = models.CharField(max_length=100)
+    customer_email = models.EmailField(blank=True, null=True)
+    customer_phone = models.CharField(max_length=20)
+    
+    order_number = models.IntegerField(unique=True, blank=True, null=True)
 
     # Store order items with their quantities as a JSON object
     # Example: { "product_id_1": 2, "product_id_2": 1 }
@@ -46,6 +48,13 @@ class ORDER(models.Model):
         default=False,
         help_text="True if the customer has collected this order"
     )
+
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            # Get the highest existing order number
+            last_number = ORDER.objects.aggregate(models.Max('order_number'))['order_number__max'] or 0
+            self.order_number = last_number + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Order #{self.id} by {self.user.username} - {self.orderStatus}"

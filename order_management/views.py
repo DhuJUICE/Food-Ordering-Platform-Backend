@@ -6,7 +6,7 @@ from .models import ORDER
 from cart_management.models import CART
 from django.contrib.auth.models import User
 
-def create_order_from_cart(user, payment_method="card"):
+def create_order_from_cart(user, customer_name, customer_phone, customer_email, payment_method="card"):
     """
     Create a new ORDER from the user's current cart.
     Clears the cart after saving.
@@ -20,7 +20,10 @@ def create_order_from_cart(user, payment_method="card"):
             user=user,
             menuCartItems=cart.menuCartItems,
             paymentMethod=payment_method,
-            orderStatus="pending"
+            orderStatus="pending",
+            customer_name = customer_name,
+            customer_phone = customer_phone,
+            customer_email = customer_email
         )
 
         # Clear the cart after saving

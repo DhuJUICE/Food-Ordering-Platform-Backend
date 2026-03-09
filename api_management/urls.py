@@ -32,4 +32,7 @@ urlpatterns = [
 	path('api/orders/all', views.OrderManagement.as_view(), name='api-orders-dashboard'),
 	path('api/orders/<int:pk>', views.OrderManagement.as_view(), name='api-orders-tracking'),
 	path('api/orders/<int:pk>/status', views.OrderManagement.as_view(), name='api-orders-tracking'),
+
+	#USER MANAGEMENT API ENDPOINTS
+	path('api/ipn', views.PaymentNotification.as_view(), name='api-payment-notification'),
 ]

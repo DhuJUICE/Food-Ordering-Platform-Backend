@@ -24,6 +24,14 @@ from order_management.views import *
 def DisplayPage(request):
     return render(request, 'api_template.html')
 
+#PAYMENT NOTIFICATION ENDPOINT
+class PaymentNotification(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        # Delegate directly to the core register view
+        return payfast_ipn(request)
+
 #ACCOUNT CREATION ENDPOINT
 class Register(APIView):
     permission_classes = [AllowAny]

@@ -21,7 +21,7 @@ SECRET_KEY = 'django-insecure-in(43*hkeezn*7g%p$%5@#n0n(#2$&m%97u4=s=!*op#sck2+!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['heranbites-backend.onrender.com','127.0.0.1', 'professionals-ridge-fast-temperature.trycloudflare.com']
+ALLOWED_HOSTS = ['heranbites-backend.onrender.com','127.0.0.1', 'bench-taxi-stories-blend.trycloudflare.com']
 
 
 # Application definition
