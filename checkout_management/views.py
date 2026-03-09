@@ -39,6 +39,7 @@ def checkout(request):
         amount = float(data.get("totalPurchaseTotal", 0))
         # Generate a unique transaction ID
         m_payment_id = str(data.get("orderNumber"))
+
         customer_name = str(data.get("customerName", ""))
         customer_phone = str(data.get("customerPhone", ""))
         customer_email = str(data.get("customerEmail",  ""))
@@ -47,11 +48,14 @@ def checkout(request):
         data.pop("orderNumber", None)       # remove if it exists
         data.pop("deliveryMethod", None)    # remove if it exists
         #-------------------------------
-        
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
+
         #------------------------------
         # Build PayFast payload
         payload = {
-            "custom_str1": str(request.user.id),
+            "custom_str1": session_key,
             "custom_str2": customer_name,
             "custom_str3": customer_phone,
             "custom_str4": customer_email,
@@ -98,17 +102,15 @@ def payfast_ipn(request):
         if data.get("payment_status") == "COMPLETE":
             #successful payment message
             print("Successful payment")
-
+            session_key = data.get("custom_str1")
+            print(session_key)
             #CREATE ORDER IN DATABASE once payment is successful
-            userId = data.get("custom_str1")
             customer_name = data.get("custom_str2")
             customer_phone = data.get("custom_str3")
             customer_email = data.get("custom_str4")
 
-            user = User.objects.get(id=userId)  # map from your IPN payload
-
             #Call the function from order_management
-            order = create_order_from_cart(user, customer_name, customer_phone, customer_email, payment_method="card")
+            order = create_order_from_cart(session_key, customer_name, customer_phone, customer_email, payment_method="card")
 
             if order:
                 print(f"ORDER #{order.id} created successfully!")

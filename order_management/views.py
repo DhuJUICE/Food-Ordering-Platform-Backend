@@ -6,18 +6,14 @@ from .models import ORDER
 from cart_management.models import CART
 from django.contrib.auth.models import User
 
-def create_order_from_cart(user, customer_name, customer_phone, customer_email, payment_method="card"):
-    """
-    Create a new ORDER from the user's current cart.
-    Clears the cart after saving.
-    """
+def create_order_from_cart(session_key, customer_name, customer_phone, customer_email, payment_method="card"):
     try:
-        cart = CART.objects.get(user=user)
+        cart = CART.objects.get(session_key=session_key)
+
         if not cart.menuCartItems:
             return None
 
         order = ORDER.objects.create(
-            user=user,
             menuCartItems=cart.menuCartItems,
             paymentMethod=payment_method,
             orderStatus="pending",
@@ -37,18 +33,12 @@ def create_order_from_cart(user, customer_name, customer_phone, customer_email, 
 
 
 #allow users to track their order status/progress
-def get_user_orders(request, user_id):
-    """
-    Returns all orders for a specific user.
-    Used for Track Order page.
-    """
-
+def get_user_orders(request, customer_phone):
     if request.method != "GET":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
     try:
-        user = User.objects.get(id=user_id)
-        orders = ORDER.objects.filter(user=user, collected=False).order_by("-id")
+        orders = ORDER.objects.filter(customer_phone=customer_phone, collected=False).order_by("-id")
 
         order_list = []
 
@@ -58,6 +48,7 @@ def get_user_orders(request, user_id):
                 "items": order.menuCartItems,
                 "status": order.orderStatus,
                 "payment_method": order.paymentMethod,
+
             })
 
         return JsonResponse({"orders": order_list}, status=200)
@@ -76,11 +67,12 @@ def get_all_orders(request):
     for order in orders:
         order_list.append({
             "order_id": order.id,
-            "user_id": order.user.id,
             "items": order.menuCartItems,
             "status": order.orderStatus,
             "payment_method": order.paymentMethod,
             "collected": order.collected,
+            "customer_name": order.customer_name,
+            "customer_phone": order.customer_phone,
         })
 
     return JsonResponse({"orders": order_list}, status=200)

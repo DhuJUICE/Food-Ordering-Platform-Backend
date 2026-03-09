@@ -2,9 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class ORDER(models.Model):
-    # Reference to the user who made the order
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
     # Guest details
     customer_name = models.CharField(max_length=100)
     customer_email = models.EmailField(blank=True, null=True)

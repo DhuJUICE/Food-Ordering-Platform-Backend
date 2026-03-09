@@ -65,7 +65,7 @@ class ProductManagement(APIView):
 
 # CART MANAGEMENT ENDPOINT
 class CartManagement(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         return CartMainView().get(request)
@@ -81,8 +81,8 @@ class CheckoutManagement(APIView):
         return checkout(request)
 
 #ORDER MANAGEMENT ENDPOINT
-class OrderManagement(APIView):
-    permission_classes = [IsAuthenticated]
+class TrackOrder(APIView):
+    permission_classes = [AllowAny]
 
     def get(self, request, pk=None):
         """
@@ -92,8 +92,12 @@ class OrderManagement(APIView):
         if pk:
             # Redirect to your core function
             return get_user_orders(request, pk)
-        else:
-            return get_all_orders(request)
+
+class OrderManagement(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk=None):
+        return get_all_orders(request)
             
     def put(self, request, pk=None):
             if not pk:
@@ -109,9 +113,15 @@ class OrderManagement(APIView):
             if status_val:
                 order.orderStatus = status_val
 
+            if not request.session.session_key:
+                request.session.create()
+            session_key = request.session.session_key
+            print(session_key)
             # Update collected if provided
             if request.data.get("collected") is True:
                 order.collected = True
+                cart = CART.objects.get(session_key=session_key)
+                cart.delete()
 
             order.save()
             return Response({
