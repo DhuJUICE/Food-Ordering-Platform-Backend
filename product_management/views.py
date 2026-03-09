@@ -6,10 +6,6 @@ from .models import PRODUCT
 from api_management.serializers import ProductSerializer
 
 class ProductManagement(APIView):
-    """
-    Core logic for product management (CRUD operations)
-    """
-
     def get(self, request, pk=None):
         if pk:
             try:
@@ -29,7 +25,7 @@ class ProductManagement(APIView):
 
         serializer = ProductSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(uploadUser=request.user)  # ✅ assign FK here
+            serializer.save(uploadUser=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

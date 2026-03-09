@@ -80,7 +80,7 @@ class CheckoutManagement(APIView):
     def post(self, request):
         return checkout(request)
 
-#ORDER MANAGEMENT ENDPOINT
+#TRACK ORDER MANAGEMENT ENDPOINT
 class TrackOrder(APIView):
     permission_classes = [AllowAny]
 
@@ -89,6 +89,7 @@ class TrackOrder(APIView):
             # Redirect to your core function
             return get_user_orders(request, customer_phone)
 
+#ORDER MANAGEMENT ENDPOINT
 class OrderManagement(APIView):
     permission_classes = [IsAuthenticated]
 
