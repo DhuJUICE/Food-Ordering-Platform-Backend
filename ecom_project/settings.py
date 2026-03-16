@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 	'cart_management',
 	'checkout_management',
 	'order_management',
+	'tenant_management',
 
 	'api_management',
 
