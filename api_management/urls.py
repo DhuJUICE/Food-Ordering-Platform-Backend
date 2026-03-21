@@ -2,14 +2,18 @@ from django.urls import path
 from . import views
 
 #token view imports
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+#from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
 	path('', views.DisplayPage),
 
 	#Used for custom logging users in - No need for the login endpoint and sends back is_staff attribute for Role Based Access Control
-	path('api/token', TokenObtainPairView.as_view(), name='token'),
-    path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
+	#path('api/token', TokenObtainPairView.as_view(), name='token'),
+    #path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
+
+	path("api/login", views.Login.as_view()),
+    path("api/refresh", views.Refresh.as_view()),
+    path("api/logout", views.Logout.as_view()),
 
 	#USER MANAGEMENT API ENDPOINTS
 	path('api/register', views.Register.as_view(), name='api-register'),

@@ -19,6 +19,26 @@ from product_management.views import ProductManagement as PMView
 from checkout_management.views import *
 from cart_management.views import CartManagement as CartMainView
 from order_management.views import *
+from auth_management.views import *
+
+#AUTHENTICATION ENDPOINT
+class Login(APIView):
+	permission_classes = [AllowAny]
+
+	def post(self, request):
+		return login_view(request)
+	
+class Refresh(APIView):
+	permission_classes = [AllowAny]
+
+	def post(self, request):
+		return refresh_view(request) 
+
+class Logout(APIView):
+	permission_classes = [AllowAny]
+
+	def post(self, request):
+		return logout_view(request) 
 
 # Basic page view for default backend landing page
 def DisplayPage(request):

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-# order_management/services.py (or utils.py)
+
 from .models import ORDER
 from cart_management.models import CART
 from django.contrib.auth.models import User
@@ -76,32 +76,34 @@ def get_all_orders(request):
     return JsonResponse({"orders": order_list}, status=200)
 
 def update_orders(request, pk):
-	if not pk:
-		return JsonResponse({"detail": "Order ID required"}, status=status.HTTP_400_BAD_REQUEST)
-	
-	try:
-		order = ORDER.objects.get(id=pk)
-	except ORDER.DoesNotExist:
-		return JsonResponse({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+    if not pk:
+        return JsonResponse({"detail": "Order ID required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        order = ORDER.objects.get(id=pk)
+    except ORDER.DoesNotExist:
+        return JsonResponse({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
-	# Update status if provided
-	status_val = request.data.get("status")
-	if status_val:
-		order.orderStatus = status_val
+    # Update status if provided
+    status_val = request.data.get("status")
+    if status_val:
+        order.orderStatus = status_val
 
-	if not request.session.session_key:
-		request.session.create()
-	session_key = request.session.session_key
+    if not request.session.session_key:
+        request.session.create()
+    session_key = request.session.session_key
 
-	# Update collected if provided
-	if request.data.get("collected") is True:
-		order.collected = True
-		cart = CART.objects.get(session_key=session_key)
-		cart.delete()
+    # Update collected if provided
+    if request.data.get("collected") is True:
+        order.collected = True
+        cart = CART.objects.get(session_key=session_key)
+        cart.delete()
 
-	order.save()
-	return JsonResponse({
-		"order_id": order.id,
-		"status": order.orderStatus,
-		"collected": order.collected
-	}, status=status.HTTP_200_OK)
+    order.save()
+
+
+    return JsonResponse({
+        "order_id": order.id,
+        "status": order.orderStatus,
+        "collected": order.collected
+    }, status=status.HTTP_200_OK)

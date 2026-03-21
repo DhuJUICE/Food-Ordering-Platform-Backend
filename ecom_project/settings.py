@@ -10,11 +10,20 @@ PAYFAST_TEST_MERCHANT_ID = config('PAYFAST_TEST_MERCHANT_ID')
 PAYFAST_TEST_MERCHANT_KEY = config('PAYFAST_TEST_MERCHANT_KEY')
 SECRET_KEY = config('SECRET_KEY')
 
+#Authentication access-token and refresh-token lifetimes
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 #Allowed hosts is what deployed hosts that can communicate with this application
-ALLOWED_HOSTS = ['heranbites-backend.onrender.com','127.0.0.1', 'bid-art-timber-critical.trycloudflare.com']
+ALLOWED_HOSTS = ['heranbites-backend.onrender.com','127.0.0.1', 'specials-img-img-arbor.trycloudflare.com']
 
 # Application definition
 INSTALLED_APPS = [
@@ -29,8 +38,12 @@ INSTALLED_APPS = [
 	'product_management',
 	'cart_management',
 	'checkout_management',
+
 	'order_management',
+
 	'tenant_management',
+
+	'auth_management',
 
 	'api_management',
 
@@ -124,7 +137,8 @@ AUTH_PASSWORD_VALIDATORS = [
 #AUTHENTICATION MECHANISMS
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+		'auth_management.authentication.CookieJWTAuthentication',
+        #'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
