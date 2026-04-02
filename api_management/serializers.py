@@ -8,6 +8,7 @@ from user_management.models import UserProfile
 
 class ProductSerializer(serializers.ModelSerializer):
     uploadUser = serializers.PrimaryKeyRelatedField(read_only=True)  # Prevent trying to update it
+    tenant = serializers.PrimaryKeyRelatedField(read_only=True)
     prodImagePath = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:

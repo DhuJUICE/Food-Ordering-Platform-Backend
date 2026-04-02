@@ -15,6 +15,7 @@ def create_order_from_cart(session_key, customer_name, customer_phone, payment_m
             return None
 
         order = ORDER.objects.create(
+            tenant=cart.tenant,
             menuCartItems=cart.menuCartItems,
             paymentMethod=payment_method,
             orderStatus="pending",
@@ -22,9 +23,8 @@ def create_order_from_cart(session_key, customer_name, customer_phone, payment_m
             customer_phone = customer_phone
         )
 
-        # Clear the cart after saving
-        cart.menuCartItems = {}
-        cart.save()
+        # Delete the cart after order has been successfully completed
+        cart.delete()
 
         return order
 
@@ -58,8 +58,9 @@ def get_all_orders(request):
     if request.method != "GET":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
-    # Only show orders that are NOT collected
-    orders = ORDER.objects.filter(collected=False).order_by("-id")
+    # Only show orders that are NOT collected and for the logged in associated tenant
+    tenant = request.user.userprofile.tenant
+    orders = ORDER.objects.filter(collected=False, tenant=tenant).order_by("-id")
 
     order_list = []
     for order in orders:
@@ -80,7 +81,8 @@ def update_orders(request, pk):
         return JsonResponse({"detail": "Order ID required"}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        order = ORDER.objects.get(id=pk)
+        tenant = request.user.userprofile.tenant
+        order = ORDER.objects.get(id=pk, tenant=tenant)
     except ORDER.DoesNotExist:
         return JsonResponse({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 

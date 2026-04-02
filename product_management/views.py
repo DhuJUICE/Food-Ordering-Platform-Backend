@@ -21,11 +21,18 @@ class ProductManagement(APIView):
 
     def post(self, request):
         data = request.data.copy()
+        print(data)
         data['moderation_status'] = 'pending'  # optional
 
         serializer = ProductSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(uploadUser=request.user)
+            tenant = request.user.userprofile.tenant
+            if tenant:
+                print("Tenant is here")
+            serializer.save(    
+                uploadUser=request.user,
+                tenant=tenant
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

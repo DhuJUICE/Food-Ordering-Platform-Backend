@@ -6,6 +6,9 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def login_view(request):
     username = request.data.get("username")
     password = request.data.get("password")
@@ -28,13 +31,15 @@ def login_view(request):
         "user_id": user.id  # send along the user_id to be used by frontend
     })
 
+    isProduction = False
+
     # Set cookies
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,   # 🔥 set True in production (HTTPS)
-        samesite="Lax",
+        secure=True if isProduction else False,
+        samesite="None" if isProduction else "Lax",
         max_age=60 * 15
     )
 
@@ -42,8 +47,8 @@ def login_view(request):
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
-        samesite="Lax",
+        secure=True if isProduction else False,
+        samesite="None" if isProduction else "Lax",
         max_age=60 * 60 * 24
     )
 

@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from tenant_management.models import TENANT
 
 class ORDER(models.Model):
+    tenant = models.ForeignKey(TENANT, on_delete=models.CASCADE)
+    
     # Guest details
     customer_name = models.CharField(max_length=100, null=True)
     customer_phone = models.CharField(max_length=20)

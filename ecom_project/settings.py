@@ -23,7 +23,12 @@ SIMPLE_JWT = {
 DEBUG = True
 
 #Allowed hosts is what deployed hosts that can communicate with this application
-ALLOWED_HOSTS = ['heranbites-backend.onrender.com','127.0.0.1', 'specials-img-img-arbor.trycloudflare.com']
+ALLOWED_HOSTS = [
+    'heranbites-backend.onrender.com',
+    '127.0.0.1',
+    'localhost',
+    'remain-monetary-handles-tells.trycloudflare.com'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -71,7 +76,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://heranbites.onrender.com', #deployed fronted
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+#do not use cors_allow_all_origins when using credentials=True from frontend
+#CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",

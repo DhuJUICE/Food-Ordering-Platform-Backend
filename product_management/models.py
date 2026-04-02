@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from tenant_management.models import TENANT
 
 # Create your models here.
 class PRODUCT(models.Model):
+    tenant = models.ForeignKey(TENANT, on_delete=models.CASCADE)
 
     #product details for database
     prodName = models.CharField(max_length = 100)

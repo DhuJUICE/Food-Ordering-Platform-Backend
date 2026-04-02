@@ -11,7 +11,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
+
 from .models import UserProfile
+from tenant_management.models import TENANT
 
 def register_view(request):
 	if request.method == 'POST':
@@ -21,19 +23,18 @@ def register_view(request):
 			first_name = data.get('first_name')
 			last_name = data.get('last_name')
 			email = data.get('email')
+			cellphone = data.get('cellphone')
 			password = data.get('password')
 			confirm_password = data.get('confirm_password')
 			username = email
-			
-			# Optional business owner request flag
-			request_business_owner = data.get('request_business_owner', False)
-			
+						
 			if User.objects.filter(email=email).exists():
 				return JsonResponse({"message": "Email already exists.", "status": "error"}, status=400)
 
 			if password != confirm_password:
 				return JsonResponse({"message": "Passwords do not match.", "status": "error"}, status=400)
 
+			#Create USER
 			new_user = User.objects.create_user(
 				first_name=first_name,
 				last_name=last_name,
@@ -42,13 +43,16 @@ def register_view(request):
 				password=password
 			)
 			
-			# Create associated UserProfile manually with custom role request info
-			role = 'openUser'  # default
-			business_owner_request = bool(request_business_owner)
+			#Create TENANT
+			new_tenant = TENANT.objects.create(
+				name=first_name,
+				cellphone=cellphone
+			)
 
-			new_user.userprofile.role = role
-			new_user.userprofile.business_owner_request = business_owner_request
-			new_user.userprofile.save()
+			profile, _ = UserProfile.objects.get_or_create(user=new_user)
+
+			profile.tenant = new_tenant
+			profile.save()
 
 			return JsonResponse({"message": "User registered successfully!", "status": "success"}, status=201)
 
