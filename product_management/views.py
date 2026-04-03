@@ -6,16 +6,21 @@ from .models import PRODUCT
 from api_management.serializers import ProductSerializer
 
 class ProductManagement(APIView):
-    def get(self, request, pk=None):
+    def get(self, request, pk=None, tenant_slug=None):
+        if tenant_slug:
+            from django.shortcuts import get_object_or_404
+            from tenant_management.models import TENANT
+
+            tenant = get_object_or_404(TENANT, slug=tenant_slug)
         if pk:
             try:
-                product = PRODUCT.objects.get(pk=pk)
+                product = PRODUCT.objects.get(pk=pk, tenant=tenant)
                 serializer = ProductSerializer(product)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except PRODUCT.DoesNotExist:
                 return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
-            products = PRODUCT.objects.filter(moderation_status="approved")
+            products = PRODUCT.objects.filter(moderation_status="approved", tenant=tenant)
             serializer = ProductSerializer(products, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -70,8 +70,8 @@ class Register(APIView):
 class MenuManagement(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk=None):
-        return PMView().get(request, pk=pk)
+    def get(self, request, pk=None, tenant_slug=None):
+        return PMView().get(request, pk=pk, tenant_slug=tenant_slug)
 
 #MENU MANAGEMENT ENDPOINT
 class ProductManagement(APIView):
