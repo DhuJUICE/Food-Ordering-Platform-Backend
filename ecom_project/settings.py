@@ -19,15 +19,27 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+isProduction = False
+
+# -------------------------
+# SESSION CONFIGURATION
+# -------------------------
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax' if not isProduction else 'None'  # or 'None' if frontend is separate
+SESSION_COOKIE_SECURE = False if not isProduction else True # True in production (HTTPS)
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if not isProduction else False
 
 #Allowed hosts is what deployed hosts that can communicate with this application
 ALLOWED_HOSTS = [
     'heranbites-backend.onrender.com',
     '127.0.0.1',
     'localhost',
-    'remain-monetary-handles-tells.trycloudflare.com'
+    'anne-endif-quiet-pointing.trycloudflare.com'
 ]
 
 # Application definition

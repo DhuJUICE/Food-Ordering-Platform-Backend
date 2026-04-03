@@ -1,3 +1,3 @@
-put this into cmd:
+put this into cmd/terminal:
 
 cloudflared tunnel --url http://localhost:8000

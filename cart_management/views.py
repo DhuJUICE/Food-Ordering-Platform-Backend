@@ -22,7 +22,7 @@ class CartManagement(APIView):
 	def get(self, request):
 		try:
 			cart = self._get_cart(request)
-			return JsonResponse({"success": True, "cart": cart.menuCartItems or {}}, status=200)
+			return JsonResponse({"success": True, "cartItems": cart.menuCartItems or {}}, status=200)
 		except Exception as e:
 			return JsonResponse({"success": False, "error": str(e)}, status=500)
 
@@ -95,7 +95,7 @@ class CartManagement(APIView):
 			except Exception as e:
 				return JsonResponse({"success": False, "error": f"Failed saving cart: {str(e)}"}, status=500)
 
-			return JsonResponse({"success": True, "cart": cart_items}, status=200)
+			return JsonResponse({"success": True, "cartItems": cart_items}, status=200)
 
 		except Exception as e:
 			return JsonResponse({"success": False, "error": str(e)}, status=500)

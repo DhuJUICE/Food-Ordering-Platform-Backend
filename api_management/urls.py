@@ -11,6 +11,7 @@ urlpatterns = [
 	#path('api/token', TokenObtainPairView.as_view(), name='token'),
     #path('api/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
 
+	path("api/auth-status", views.AuthStatus.as_view()),
 	path("api/login", views.Login.as_view()),
     path("api/refresh", views.Refresh.as_view()),
     path("api/logout", views.Logout.as_view()),
@@ -34,7 +35,7 @@ urlpatterns = [
 
 	#ORDER MANAGEMENT ROUTES
 	path('api/orders/all', views.OrderManagement.as_view(), name='api-orders-dashboard'),
-	path('api/orders/track/<path:customer_phone>', views.TrackOrder.as_view(), name='api-orders-tracking'),
+	path('api/orders/track', views.TrackOrder.as_view(), name='api-orders-tracking'),
 	path('api/orders/<int:pk>', views.OrderManagement.as_view(), name='api-orders-update'),
 	path('api/orders/<int:pk>/status', views.OrderManagement.as_view(), name='api-orders-tracking'),
 

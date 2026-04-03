@@ -38,6 +38,8 @@ def checkout(request):
 
         customer_name = str(data.get("customerName", ""))
         customer_phone = str(data.get("customerPhone", ""))
+        
+        request.session['customer_phone'] = customer_phone
 
         # Remove extra fields before validation
         data.pop("orderNumber", None)       # remove if it exists
@@ -58,7 +60,7 @@ def checkout(request):
             "return_url": "http://localhost:3000/#/success",
             "cancel_url": "https://yourdomain.com/payment-cancel",
             #"notify_url": "https://heranbites-backend.onrender.com/api/ipn",
-            "notify_url": "https://remain-monetary-handles-tells.trycloudflare.com/api/ipn",
+            "notify_url": "https://anne-endif-quiet-pointing.trycloudflare.com/api/ipn",
             "m_payment_id": m_payment_id,
             "amount": "%.2f" % amount,
             "item_name": f"Order #{m_payment_id}",
@@ -97,15 +99,16 @@ def payfast_ipn(request):
             #successful payment message
             print("Successful payment")
             session_key = data.get("custom_str1")
+
             #CREATE ORDER IN DATABASE once payment is successful
             customer_name = data.get("custom_str2")
             customer_phone = data.get("custom_str3")
-
+            
             #Call the function from order_management
             order = create_order_from_cart(session_key, customer_name, customer_phone, payment_method="card")
 
             if order:
-                print(f"ORDER #{order.id} created successfully!")
+                print(f"ORDER created successfully!")
             else:
                 print("Failed to create order or cart empty.")
             

@@ -32,27 +32,25 @@ def create_order_from_cart(session_key, customer_name, customer_phone, payment_m
         return None
 
 #allow users to track their order status/progress
-def get_user_orders(request, customer_phone):
+def get_user_orders(request):
     if request.method != "GET":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
-    try:
-        orders = ORDER.objects.filter(customer_phone=customer_phone, collected=False).order_by("-id")
+    customer_phone = request.session.get('customer_phone')
 
-        order_list = []
+    orders = ORDER.objects.filter(customer_phone=customer_phone, collected=False).order_by("-id")
 
-        for order in orders:
-            order_list.append({
-                "order_id": order.id,
-                "items": order.menuCartItems,
-                "status": order.orderStatus,
-                "payment_method": order.paymentMethod,
-            })
+    order_list = []
 
-        return JsonResponse({"orders": order_list}, status=200)
+    for order in orders:
+        order_list.append({
+            "order_id": order.id,
+            "items": order.menuCartItems,
+            "status": order.orderStatus,
+            "payment_method": order.paymentMethod,
+        })
 
-    except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=404)
+    return JsonResponse({"orders": order_list}, status=200)
 
 def get_all_orders(request):
     if request.method != "GET":
@@ -91,15 +89,11 @@ def update_orders(request, pk):
     if status_val:
         order.orderStatus = status_val
 
-    if not request.session.session_key:
-        request.session.create()
-    session_key = request.session.session_key
+    collected = request.data.get("collected")
 
-    # Update collected if provided
-    if request.data.get("collected") is True:
+    # Update collected if the user collected their order
+    if collected:
         order.collected = True
-        cart = CART.objects.get(session_key=session_key)
-        cart.delete()
 
     order.save()
 

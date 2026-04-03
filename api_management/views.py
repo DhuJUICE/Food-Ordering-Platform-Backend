@@ -22,6 +22,12 @@ from order_management.views import *
 from auth_management.views import *
 
 #AUTHENTICATION ENDPOINT
+class AuthStatus(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return auth_status(request)
+
 class Login(APIView):
 	permission_classes = [AllowAny]
 
@@ -49,7 +55,7 @@ class PaymentNotification(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        # Delegate directly to the core register view
+        # Delegate directly to the core payment notification and order creation
         return payfast_ipn(request)
 
 #ACCOUNT CREATION ENDPOINT
@@ -104,10 +110,8 @@ class CheckoutManagement(APIView):
 class TrackOrder(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, customer_phone=None):
-        if customer_phone:
-            # Redirect to your core function
-            return get_user_orders(request, customer_phone)
+    def get(self, request):
+        return get_user_orders(request)
 
 #ORDER MANAGEMENT ENDPOINT
 class OrderManagement(APIView):
