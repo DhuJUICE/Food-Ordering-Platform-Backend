@@ -8,6 +8,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+IN_PRODUCTION = settings.IN_PRODUCTION
 
 @csrf_exempt
 def login_view(request):
@@ -29,15 +32,13 @@ def login_view(request):
 
     response = Response({"message": "Login successful"})
 
-    isProduction = False
-
     # Set cookies
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=True if isProduction else False,
-        samesite="None" if isProduction else "Lax",
+        secure=True if IN_PRODUCTION == True else False,
+        samesite="None" if IN_PRODUCTION == True else "Lax",
         max_age=60 * 15
     )
 
@@ -45,8 +46,8 @@ def login_view(request):
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True if isProduction else False,
-        samesite="None" if isProduction else "Lax",
+        secure=True if IN_PRODUCTION == True else False,
+        samesite="None" if IN_PRODUCTION == True else "Lax",
         max_age=60 * 60 * 24
     )
 
@@ -68,8 +69,8 @@ def refresh_view(request):
             key="access_token",
             value=access_token,
             httponly=True,
-            secure=False,
-            samesite="Lax",
+            secure=True if IN_PRODUCTION == True else False,
+            samesite="None" if IN_PRODUCTION == True else "Lax",
             max_age=60 * 15
         )
 

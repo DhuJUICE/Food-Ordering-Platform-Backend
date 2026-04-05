@@ -19,7 +19,13 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-isProduction = False
+IN_PRODUCTION = config('IN_PRODUCTION')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+if IN_PRODUCTION == True:
+    DEBUG = False
+else:
+    DEBUG = True
 
 # -------------------------
 # SESSION CONFIGURATION
@@ -28,11 +34,13 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax' if not isProduction else 'None'  # or 'None' if frontend is separate
-SESSION_COOKIE_SECURE = False if not isProduction else True # True in production (HTTPS)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if not isProduction else False
+if IN_PRODUCTION == True:
+    SESSION_COOKIE_SAMESITE = 'None'  # or 'None' if frontend is separate
+    SESSION_COOKIE_SECURE = True # True in production (HTTPS)
+else:
+    SESSION_COOKIE_SAMESITE = 'Lax'   # or 'None' if frontend is separate
+    SESSION_COOKIE_SECURE = False 
 
 #Allowed hosts is what deployed hosts that can communicate with this application
 ALLOWED_HOSTS = [

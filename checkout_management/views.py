@@ -16,15 +16,20 @@ from order_management.views import create_order_from_cart
 from django.contrib.auth.models import User
 
 
+IN_PRODUCTION = settings.IN_PRODUCTION
+
 # PayFast credentials
 PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
 PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
-PAYFAST_SANDBOX = True  # Set False for production
-PAYFAST_URL = (
-    "https://sandbox.payfast.co.za/eng/process"
-    if PAYFAST_SANDBOX
-    else "https://www.payfast.co.za/eng/process"
-)
+
+PAYFAST_URL = ""
+
+if IN_PRODUCTION == True:
+    PAYFAST_URL = "https://www.payfast.co.za/eng/process"
+else:
+    PAYFAST_URL = "https://sandbox.payfast.co.za/eng/process"
+
+
 
 def checkout(request):
     if request.method != "POST":
@@ -46,6 +51,17 @@ def checkout(request):
             request.session.create()
         session_key = request.session.session_key
 
+        if IN_PRODUCTION == True:
+            RETURN_URL = "https://heranbites.onrender.com/#/success"
+            NOTIFY_URL = "https://heranbites-backend.onrender.com"
+            NOTIFY_URL += "/api/ipn"
+        else:
+            RETURN_URL = "http://localhost:3000/#/success"
+
+            #change below notify url to local cloudflare public url
+            NOTIFY_URL = "https://conditioning-aviation-age-theology.trycloudflare.com" 
+            NOTIFY_URL += "/api/ipn"
+            
         #------------------------------
         # Build PayFast payload
         payload = {
@@ -55,10 +71,10 @@ def checkout(request):
             "custom_str4": total_amount,
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
-            "return_url": "http://localhost:3000/#/success",
+            "return_url": RETURN_URL,
             "cancel_url": "https://yourdomain.com/payment-cancel",
             #"notify_url": "https://heranbites-backend.onrender.com/api/ipn",
-            "notify_url": "https://conditioning-aviation-age-theology.trycloudflare.com/api/ipn",
+            "notify_url": NOTIFY_URL,
             "m_payment_id": m_payment_id,
             "amount": "%.2f" % total_amount,
             "item_name": f"Order #{m_payment_id}",

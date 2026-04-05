@@ -1,1 +1,7 @@
-
+To deploy the system into production:
+Change:
+-checkout_management
+	-return url -> https://heranbites.onrender.com/#/success
+	-notify url -> https://heranbites-backend.onrender.com/api/ipn
+	
+	-change .env file -> IS_PRODUCTION = True
