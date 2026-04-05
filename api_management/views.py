@@ -15,11 +15,13 @@ from .serializers import *
 
 from checkout_management.views import checkout
 from user_management.views import *
-from product_management.views import ProductManagement as PMView
+from product_management.views import ProductManagement as PMView, MenuManagement as MMView
 from checkout_management.views import *
 from cart_management.views import CartManagement as CartMainView
 from order_management.views import *
 from auth_management.views import *
+
+
 
 #AUTHENTICATION ENDPOINT
 class AuthStatus(APIView):
@@ -70,8 +72,9 @@ class Register(APIView):
 class MenuManagement(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk=None, tenant_slug=None):
-        return PMView().get(request, pk=pk, tenant_slug=tenant_slug)
+    def get(self, request, pk=None):
+        slug = request.session.get("slug")
+        return MMView().get(request, slug, pk=pk)
 
 #MENU MANAGEMENT ENDPOINT
 class ProductManagement(APIView):
@@ -93,11 +96,43 @@ class ProductManagement(APIView):
 class CartManagement(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request):
-        return CartMainView().get(request)
+    def get(self, request, slug=None):
+        if not request.session.get("slug"):
+            if not slug:
+                return JsonResponse({"success": False, "error": "Tenant slug missing"}, status=400)
+            request.session["slug"] = slug
+        else:
+            slug = request.session.get("slug")
+        return CartMainView().get(request, slug)
 
+    def post(self, request, pk):
+        slug = request.session.get("slug")
+        return CartMainView().post(request, pk, slug)
+    
     def put(self, request):
         return CartMainView().put(request)
+
+    def delete(self, request, pk):
+        slug = request.session.get("slug")
+        try:
+            if not request.session.session_key:
+                request.session.create()
+            session_key = request.session.session_key
+
+            tenant = get_object_or_404(TENANT, slug=slug)
+            cart = get_object_or_404(CART, session_key=session_key, tenant=tenant)
+
+            if not pk:
+                return JsonResponse({"success": False, "message": "productId is required"}, status=400)
+
+            cartitem = get_object_or_404(CARTITEM, cart=cart, product_id=pk)
+
+            cartitem.delete()
+
+            return JsonResponse({"success": True, "message": "Cart item removed successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 # CHECKOUT MANAGEMENT ENDPOINT
 class CheckoutManagement(APIView):
@@ -111,7 +146,8 @@ class TrackOrder(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        return get_user_orders(request)
+        slug = request.session.get("slug")
+        return get_user_orders(request, slug)
 
 #ORDER MANAGEMENT ENDPOINT
 class OrderManagement(APIView):

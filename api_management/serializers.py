@@ -1,15 +1,14 @@
 from rest_framework import serializers
+
 from product_management.models import PRODUCT
 from cart_management.models import CART
 from django.contrib.auth.models import User
-
 from user_management.models import UserProfile
 
-
 class ProductSerializer(serializers.ModelSerializer):
-    uploadUser = serializers.PrimaryKeyRelatedField(read_only=True)  # Prevent trying to update it
-    tenant = serializers.PrimaryKeyRelatedField(read_only=True)
-    prodImagePath = serializers.CharField(required=False, allow_blank=True)
+    tenant = serializers.PrimaryKeyRelatedField(read_only=True) # Prevent trying to update it
+    user = serializers.PrimaryKeyRelatedField(read_only=True)  # Prevent trying to update it
+    image = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = PRODUCT

@@ -2,29 +2,48 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 
-from .models import ORDER
-from cart_management.models import CART
+from tenant_management.models import TENANT
+from .models import ORDER, ORDERITEM
+from cart_management.models import CART, CARTITEM
 from django.contrib.auth.models import User
-from rest_framework import status
 
-def create_order_from_cart(session_key, customer_name, customer_phone, payment_method="card"):
+from rest_framework import status
+from django.db import transaction
+from django.forms.models import model_to_dict
+
+def create_order_from_cart(session_key, customer_name, customer_phone, total_amount, payment_method="card"):
     try:
         cart = CART.objects.get(session_key=session_key)
+        cart_items = CARTITEM.objects.filter(cart=cart).select_related('product')
 
-        if not cart.menuCartItems:
+        if not cart_items.exists():
             return None
 
-        order = ORDER.objects.create(
-            tenant=cart.tenant,
-            menuCartItems=cart.menuCartItems,
-            paymentMethod=payment_method,
-            orderStatus="pending",
-            customer_name = customer_name,
-            customer_phone = customer_phone
-        )
+        with transaction.atomic():
+            # Create the order
+            order = ORDER.objects.create(
+                tenant=cart.tenant,
+                paymentMethod=payment_method,
+                status="pending",
+                customer_name=customer_name,
+                customer_phone=customer_phone,
+                total_amount=total_amount,
+            )
 
-        # Delete the cart after order has been successfully completed
-        cart.delete()
+            # Create order items from cart items
+            order_items = [
+                ORDERITEM(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price_at_purchase=item.product.price
+                )
+                for item in cart_items
+            ]
+            ORDERITEM.objects.bulk_create(order_items)
+
+            # Delete the cart and cart items
+            cart.delete()
 
         return order
 
@@ -32,25 +51,49 @@ def create_order_from_cart(session_key, customer_name, customer_phone, payment_m
         return None
 
 #allow users to track their order status/progress
-def get_user_orders(request):
+def get_user_orders(request, slug):
     if request.method != "GET":
-        return JsonResponse({"error": "Invalid request method"}, status=405)
+        return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
 
     customer_phone = request.session.get('customer_phone')
+    if not customer_phone:
+        return JsonResponse({"success": False, "error": "Customer not identified"}, status=400)
 
-    orders = ORDER.objects.filter(customer_phone=customer_phone, collected=False).order_by("-id")
+    try:
+        tenant = TENANT.objects.get(slug=slug)
+    except TENANT.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Tenant not found"}, status=404)
 
-    order_list = []
+    # Get all orders for this customer and tenant
+    orders = ORDER.objects.filter(customer_phone=customer_phone, tenant=tenant).order_by("-id")
+
+    order_items = []
 
     for order in orders:
-        order_list.append({
+        # Get all items for this order
+        items_qs = ORDERITEM.objects.filter(order=order).select_related("product")
+        items = [
+            {
+                "product": model_to_dict(item.product),
+                "quantity": item.quantity,
+                "price_at_purchase": float(item.price_at_purchase),
+            }
+            for item in items_qs
+        ]
+
+        order_items.append({
             "order_id": order.id,
-            "items": order.menuCartItems,
-            "status": order.orderStatus,
+            "order_number": order.order_number,
+            "items": items,
+            "status": order.status,
             "payment_method": order.paymentMethod,
+            "total_amount": float(order.total_amount),
+            "created_at": order.created_at.isoformat(),
+            "updated_at": order.updated_at.isoformat(),
+            "is_collected": order.is_collected,
         })
 
-    return JsonResponse({"orders": order_list}, status=200)
+    return JsonResponse({"success": True, "order_items": order_items}, status=200)
 
 def get_all_orders(request):
     if request.method != "GET":
@@ -58,21 +101,35 @@ def get_all_orders(request):
 
     # Only show orders that are NOT collected and for the logged in associated tenant
     tenant = request.user.userprofile.tenant
-    orders = ORDER.objects.filter(collected=False, tenant=tenant).order_by("-id")
+    orders = ORDER.objects.filter(is_collected=False, tenant=tenant).order_by("-id")
 
-    order_list = []
+    order_items = []
+
     for order in orders:
-        order_list.append({
+        # Get all items for this order
+        items_qs = ORDERITEM.objects.filter(order=order).select_related("product")
+        items = [
+            {
+                "product": model_to_dict(item.product),
+                "quantity": item.quantity,
+                "price_at_purchase": float(item.price_at_purchase),
+            }
+            for item in items_qs
+        ]
+
+        order_items.append({
             "order_id": order.id,
-            "items": order.menuCartItems,
-            "status": order.orderStatus,
+            "order_number": order.order_number,
+            "items": items,
+            "status": order.status,
             "payment_method": order.paymentMethod,
-            "collected": order.collected,
-            "customer_name": order.customer_name,
-            "customer_phone": order.customer_phone,
+            "total_amount": float(order.total_amount),
+            "created_at": order.created_at.isoformat(),
+            "updated_at": order.updated_at.isoformat(),
+            "is_collected": order.is_collected,
         })
 
-    return JsonResponse({"orders": order_list}, status=200)
+    return JsonResponse({"order_items": order_items}, status=200)
 
 def update_orders(request, pk):
     if not pk:
@@ -80,26 +137,26 @@ def update_orders(request, pk):
     
     try:
         tenant = request.user.userprofile.tenant
-        order = ORDER.objects.get(id=pk, tenant=tenant)
+        order = ORDER.objects.get(pk=pk, tenant=tenant)
     except ORDER.DoesNotExist:
         return JsonResponse({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
     # Update status if provided
     status_val = request.data.get("status")
     if status_val:
-        order.orderStatus = status_val
+        order.status = status_val
 
-    collected = request.data.get("collected")
+    is_collected = request.data.get("is_collected")
 
     # Update collected if the user collected their order
-    if collected:
-        order.collected = True
+    if is_collected:
+        order.is_collected = True
 
     order.save()
 
 
     return JsonResponse({
         "order_id": order.id,
-        "status": order.orderStatus,
-        "collected": order.collected
+        "status": order.status,
+        "is_collected": order.is_collected
     }, status=status.HTTP_200_OK)

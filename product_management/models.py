@@ -5,22 +5,10 @@ from tenant_management.models import TENANT
 # Create your models here.
 class PRODUCT(models.Model):
     tenant = models.ForeignKey(TENANT, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
 
-    #product details for database
-    prodName = models.CharField(max_length = 100)
-    prodPrice = models.DecimalField(max_digits=10, decimal_places=2)
-    prodDesc = models.CharField(max_length = 100)
-    prodAvailQuant = models.IntegerField()
-    prodImagePath = models.CharField(max_length=255, blank=True, null=True)
-    uploadUser = models.ForeignKey(
-        User,               # The related model
-        on_delete=models.CASCADE,  # What happens when the related user is deleted
-        related_name='uploads',    # Optional: reverse relation name
-        null=False,                # Is this field required? Default is False
-        blank=False                # Required in forms
-    )
-    moderation_status = models.CharField(
-    max_length=10,
-    choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
-    default='pending'
-)
+    name = models.CharField(max_length = 100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.CharField(max_length=255, blank=True, null=True)
+    
+    is_available = models.BooleanField(default='True')

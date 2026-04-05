@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     'heranbites-backend.onrender.com',
     '127.0.0.1',
     'localhost',
-    'anne-endif-quiet-pointing.trycloudflare.com'
+    'conditioning-aviation-age-theology.trycloudflare.com'
 ]
 
 # Application definition

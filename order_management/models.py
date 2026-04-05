@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from tenant_management.models import TENANT
+from product_management.models import PRODUCT
+from django.utils import timezone
 
 class ORDER(models.Model):
     tenant = models.ForeignKey(TENANT, on_delete=models.CASCADE)
@@ -11,15 +13,9 @@ class ORDER(models.Model):
     
     order_number = models.IntegerField(unique=True, blank=True, null=True)
 
-    # Store order items with their quantities as a JSON object
-    # Example: { "product_id_1": 2, "product_id_2": 1 }
-    menuCartItems = models.JSONField(
-        default=dict,
-        help_text="Dictionary where keys are PRODUCT IDs and values are quantities"
-    )
-
     # Automatically store when the order was created/updated
-    datetimeUpdated = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     # Payment method used for the order
     paymentMethod = models.CharField(
@@ -36,17 +32,19 @@ class ORDER(models.Model):
         ("done", "Done"),             # Order ready/completed
         ("cancelled", "Cancelled"),   # Order cancelled/failure
     ]
-    orderStatus = models.CharField(
+    status = models.CharField(
         max_length=15,
         choices=ORDER_STATUS_CHOICES,
         default="pending",
         help_text="Current status of the order"
     )
 
-    collected = models.BooleanField(
+    is_collected = models.BooleanField(
         default=False,
         help_text="True if the customer has collected this order"
     )
+
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
         if not self.order_number:
@@ -55,5 +53,12 @@ class ORDER(models.Model):
             self.order_number = last_number + 1
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"Order #{self.id} by {self.user.username} - {self.orderStatus}"
+class ORDERITEM(models.Model):
+    order = models.ForeignKey(ORDER, on_delete=models.CASCADE)
+    product = models.ForeignKey(PRODUCT, on_delete=models.CASCADE)
+
+    quantity = models.IntegerField()
+    price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = ('order', 'product')

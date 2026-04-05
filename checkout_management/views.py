@@ -32,7 +32,7 @@ def checkout(request):
 
     try:
         data = json.loads(request.body)
-        amount = float(data.get("totalPurchaseTotal", 0))
+        total_amount = float(data.get("totalPurchaseTotal", 0))
         # Generate a unique transaction ID
         m_payment_id = str(data.get("orderNumber"))
 
@@ -41,9 +41,6 @@ def checkout(request):
         
         request.session['customer_phone'] = customer_phone
 
-        # Remove extra fields before validation
-        data.pop("orderNumber", None)       # remove if it exists
-        data.pop("deliveryMethod", None)    # remove if it exists
         #-------------------------------
         if not request.session.session_key:
             request.session.create()
@@ -55,14 +52,15 @@ def checkout(request):
             "custom_str1": session_key,
             "custom_str2": customer_name,
             "custom_str3": customer_phone,
+            "custom_str4": total_amount,
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
             "return_url": "http://localhost:3000/#/success",
             "cancel_url": "https://yourdomain.com/payment-cancel",
             #"notify_url": "https://heranbites-backend.onrender.com/api/ipn",
-            "notify_url": "https://anne-endif-quiet-pointing.trycloudflare.com/api/ipn",
+            "notify_url": "https://conditioning-aviation-age-theology.trycloudflare.com/api/ipn",
             "m_payment_id": m_payment_id,
-            "amount": "%.2f" % amount,
+            "amount": "%.2f" % total_amount,
             "item_name": f"Order #{m_payment_id}",
             "name_first": "John",
             "name_last": "Doe",
@@ -70,7 +68,6 @@ def checkout(request):
         }
 
         # Construct PayFast URL
-        #payment_url = f"{PAYFAST_URL}?{'&'.join(f'{k}={v}' for k,v in payload.items())}"
         # Encode all parameters properly
         payment_url = f"{PAYFAST_URL}?{urlencode(payload)}"
         
@@ -96,16 +93,16 @@ def payfast_ipn(request):
 
     if response.text == "VALID":
         if data.get("payment_status") == "COMPLETE":
-            #successful payment message
             print("Successful payment")
             session_key = data.get("custom_str1")
 
             #CREATE ORDER IN DATABASE once payment is successful
             customer_name = data.get("custom_str2")
             customer_phone = data.get("custom_str3")
-            
+            total_amount = data.get("custom_str4")
+
             #Call the function from order_management
-            order = create_order_from_cart(session_key, customer_name, customer_phone, payment_method="card")
+            order = create_order_from_cart(session_key, customer_name, customer_phone, total_amount, payment_method="card")
 
             if order:
                 print(f"ORDER created successfully!")
