@@ -59,7 +59,7 @@ def checkout(request):
             RETURN_URL = "http://localhost:3000/#/success"
 
             #change below notify url to local cloudflare public url
-            NOTIFY_URL = "https://conditioning-aviation-age-theology.trycloudflare.com" 
+            NOTIFY_URL = "https://availability-robust-star-dancing.trycloudflare.com" 
             NOTIFY_URL += "/api/ipn"
             
         #------------------------------

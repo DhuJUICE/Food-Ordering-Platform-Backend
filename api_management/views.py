@@ -74,7 +74,7 @@ class MenuManagement(APIView):
 
     def get(self, request, pk=None):
         slug = request.session.get("slug")
-
+		print("SLUG: ", slug)
         return MMView().get(request, slug, pk=pk)
 
 #MENU MANAGEMENT ENDPOINT

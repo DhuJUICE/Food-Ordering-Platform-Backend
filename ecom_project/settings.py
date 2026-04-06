@@ -47,7 +47,7 @@ ALLOWED_HOSTS = [
     'heranbites-backend.onrender.com',
     '127.0.0.1',
     'localhost',
-    'conditioning-aviation-age-theology.trycloudflare.com'
+    'availability-robust-star-dancing.trycloudflare.com'
 ]
 
 # Application definition
