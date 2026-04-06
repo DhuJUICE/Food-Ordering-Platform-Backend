@@ -31,22 +31,22 @@ class AuthStatus(APIView):
         return auth_status(request)
 
 class Login(APIView):
-	permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
-	def post(self, request):
-		return login_view(request)
-	
+    def post(self, request):
+        return login_view(request)
+    
 class Refresh(APIView):
-	permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
-	def post(self, request):
-		return refresh_view(request) 
+    def post(self, request):
+        return refresh_view(request) 
 
 class Logout(APIView):
-	permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
-	def post(self, request):
-		return logout_view(request) 
+    def post(self, request):
+        return logout_view(request) 
 
 # Basic page view for default backend landing page
 def DisplayPage(request):
@@ -74,7 +74,7 @@ class MenuManagement(APIView):
 
     def get(self, request, pk=None):
         slug = request.session.get("slug")
-		print("SLUG: ", slug)
+        print("SLUG: ", slug)
         return MMView().get(request, slug, pk=pk)
 
 #MENU MANAGEMENT ENDPOINT
