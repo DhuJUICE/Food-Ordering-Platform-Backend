@@ -74,6 +74,7 @@ class MenuManagement(APIView):
 
     def get(self, request, pk=None):
         slug = request.session.get("slug")
+
         return MMView().get(request, slug, pk=pk)
 
 #MENU MANAGEMENT ENDPOINT
@@ -97,12 +98,8 @@ class CartManagement(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug=None):
-        if not request.session.get("slug"):
-            if not slug:
-                return JsonResponse({"success": False, "error": "Tenant slug missing"}, status=400)
-            request.session["slug"] = slug
-        else:
-            slug = request.session.get("slug")
+        
+        request.session["slug"] = slug
         return CartMainView().get(request, slug)
 
     def post(self, request, pk):

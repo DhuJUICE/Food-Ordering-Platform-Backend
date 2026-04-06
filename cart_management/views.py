@@ -23,20 +23,23 @@ class CartManagement(APIView):
 
 	def get(self, request, slug):
 		try:
+			# Ensure session
 			if not request.session.session_key:
 				request.session.create()
-		
 			session_key = request.session.session_key
 
-			from django.shortcuts import get_object_or_404
-			tenant = get_object_or_404(TENANT, slug=slug)
+			# Try to get tenant
+			try:
+				tenant = TENANT.objects.get(slug=slug)
+			except TENANT.DoesNotExist:
+				return JsonResponse({
+					"success": False,
+					"message": f"No business found with slug '{slug}'"
+				}, status=404)  # 404 is appropriate for not found
 
-			cart = CART.objects.filter(
-				session_key=session_key,
-				tenant=tenant
-			).first()
+			# Find the cart for this session + tenant
+			cart = CART.objects.filter(session_key=session_key, tenant=tenant).first()
 
-			#If cart doesn't exist → return empty
 			if not cart:
 				return JsonResponse({"success": True, "cartItems": []}, status=200)
 
