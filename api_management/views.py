@@ -72,7 +72,7 @@ class Register(APIView):
 class MenuManagement(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, pk=None):
+    def get(self, request, slug, pk=None):
         slug = request.session.get("slug")
         print("SLUG: ", slug)
         return MMView().get(request, slug, pk=pk)
@@ -100,6 +100,7 @@ class CartManagement(APIView):
     def get(self, request, slug=None):
         
         request.session["slug"] = slug
+        print(request.session.get("slug"))
         return CartMainView().get(request, slug)
 
     def post(self, request, pk):

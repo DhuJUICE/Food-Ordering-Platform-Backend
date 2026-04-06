@@ -14,6 +14,7 @@ urlpatterns = [
 
 	#PRODUCT MANAGEMENT API ENDPOINTS - FOR MENU
 	path('api/menu', views.MenuManagement.as_view(), name='api-product-menu'),
+	path('<slug:slug>/api/menu', views.MenuManagement.as_view(), name='api-product-menu'),
 
     path('api/product', views.ProductManagement.as_view(), name='api-product'),
 	path('api/product/<int:pk>', views.ProductManagement.as_view(), name='api-product-id'),
