@@ -53,7 +53,7 @@ class CartManagement(APIView):
 				}
 				for item in cartitems
 			]
-
+			print(items)
 			return JsonResponse({"success": True, "cartItems": items}, status=200)
 
 		except Exception as e:
@@ -62,7 +62,7 @@ class CartManagement(APIView):
 				"error": str(e)
 			}, status=500)
 		
-	def post(self, request, pk, slug):
+	def post(self, request, slug, pk):
 		if not request.session.session_key:
 			request.session.create()
 		
@@ -98,7 +98,7 @@ class CartManagement(APIView):
 
 
 
-	def put(self, request):
+	def put(self, request, slug):
 		try:
 			data = request.data
 			action = data.get("action")
@@ -108,7 +108,7 @@ class CartManagement(APIView):
 				return JsonResponse({"success": False, "error": "Action and product_id are required"}, status=400)
 
 			product = PRODUCT.objects.get(pk=product_id)
-			tenant = product.tenant
+			tenant = TENANT.objects.get(slug=slug)
 			cart = self._get_cart(request, tenant)
 			cart_item = CARTITEM.objects.get(cart=cart, product=product)
 

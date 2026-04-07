@@ -73,8 +73,6 @@ class MenuManagement(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug, pk=None):
-        slug = request.session.get("slug")
-        print("SLUG: ", slug)
         return MMView().get(request, slug, pk=pk)
 
 #MENU MANAGEMENT ENDPOINT
@@ -97,21 +95,16 @@ class ProductManagement(APIView):
 class CartManagement(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, slug=None):
-        
-        request.session["slug"] = slug
-        print(request.session.get("slug"))
+    def get(self, request, slug):
         return CartMainView().get(request, slug)
 
-    def post(self, request, pk):
-        slug = request.session.get("slug")
-        return CartMainView().post(request, pk, slug)
+    def post(self, request, slug, pk):
+        return CartMainView().post(request, slug, pk)
     
-    def put(self, request):
+    def put(self, request, slug):
         return CartMainView().put(request)
 
-    def delete(self, request, pk):
-        slug = request.session.get("slug")
+    def delete(self, request, slug, pk):
         try:
             if not request.session.session_key:
                 request.session.create()

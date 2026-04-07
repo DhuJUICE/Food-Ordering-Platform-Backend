@@ -23,6 +23,7 @@ urlpatterns = [
 	path('<slug:slug>/api/cart', views.CartManagement.as_view(), name='api-cart'),
     path('api/cart', views.CartManagement.as_view(), name='api-cart'),
 	path('api/cart/<int:pk>', views.CartManagement.as_view(), name='api-cart-id'),
+	path('<slug:slug>/api/cart/<int:pk>', views.CartManagement.as_view(), name='api-cart-id'),
     
 	#CHECKOUT MANAGEMENT API ENDPOINTS
 	path('api/checkout', views.CheckoutManagement.as_view(), name='api-checkout'),
