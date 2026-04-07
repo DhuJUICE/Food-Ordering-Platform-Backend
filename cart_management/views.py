@@ -53,7 +53,7 @@ class CartManagement(APIView):
 				}
 				for item in cartitems
 			]
-			print(items)
+
 			return JsonResponse({"success": True, "cartItems": items}, status=200)
 
 		except Exception as e:

@@ -30,7 +30,7 @@ urlpatterns = [
 
 	#ORDER MANAGEMENT ROUTES
     path('api/orders/all', views.OrderManagement.as_view(), name='api-orders-dashboard'),
-	path('api/orders/track', views.TrackOrder.as_view(), name='api-orders-tracking'),
+	path('<slug:slug>/api/orders/track', views.TrackOrder.as_view(), name='api-orders-tracking'),
 	path('api/orders/<int:pk>', views.OrderManagement.as_view(), name='api-orders-update'),
 	path('api/orders/<int:pk>/status', views.OrderManagement.as_view(), name='api-orders-tracking'),
 

@@ -55,13 +55,15 @@ def checkout(request):
             RETURN_URL = "https://heranbites.onrender.com/#/success"
             NOTIFY_URL = "https://heranbites-backend.onrender.com"
             NOTIFY_URL += "/api/ipn"
+            CANCEL_URL = "https://heranbites.onrender.com/#/failure"
         else:
             RETURN_URL = "http://localhost:3000/#/success"
 
             #change below notify url to local cloudflare public url
-            NOTIFY_URL = "https://availability-robust-star-dancing.trycloudflare.com" 
+            NOTIFY_URL = "https://jewelry-graphics-overcome-achieving.trycloudflare.com" 
             NOTIFY_URL += "/api/ipn"
-            
+            CANCEL_URL = "http://localhost:3000/#/failure"
+        
         #------------------------------
         # Build PayFast payload
         payload = {
@@ -72,7 +74,7 @@ def checkout(request):
             "merchant_id": PAYFAST_MERCHANT_ID,
             "merchant_key": PAYFAST_MERCHANT_KEY,
             "return_url": RETURN_URL,
-            "cancel_url": "https://yourdomain.com/payment-cancel",
+            "cancel_url": CANCEL_URL,
             #"notify_url": "https://heranbites-backend.onrender.com/api/ipn",
             "notify_url": NOTIFY_URL,
             "m_payment_id": m_payment_id,

@@ -136,8 +136,7 @@ class CheckoutManagement(APIView):
 class TrackOrder(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request):
-        slug = request.session.get("slug")
+    def get(self, request, slug):
         return get_user_orders(request, slug)
 
 #ORDER MANAGEMENT ENDPOINT

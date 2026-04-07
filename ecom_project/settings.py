@@ -47,7 +47,7 @@ ALLOWED_HOSTS = [
     'heranbites-backend.onrender.com',
     '127.0.0.1',
     'localhost',
-    'availability-robust-star-dancing.trycloudflare.com'
+    'jewelry-graphics-overcome-achieving.trycloudflare.com'
 ]
 
 # Application definition
