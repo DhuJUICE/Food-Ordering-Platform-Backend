@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
 	path('', views.DisplayPage),
 
+	path("api/auth-image", views.AuthImagekit.as_view()),
+
 	path("api/auth-status", views.AuthStatus.as_view()),
 	path("api/login", views.Login.as_view()),
     path("api/refresh", views.Refresh.as_view()),

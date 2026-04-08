@@ -1,3 +1,8 @@
+import hmac
+import hashlib
+import uuid
+import time
+
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.conf import settings
@@ -23,7 +28,26 @@ from auth_management.views import *
 
 
 
-#AUTHENTICATION ENDPOINT
+#AUTHENTICATION ENDPOINTS
+
+class AuthImagekit(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        token = str(uuid.uuid4())
+        expire = int(time.time()) + 3600
+        signature = hmac.new(
+            settings.IMAGEKIT_PRIVATE_KEY.encode(),
+            (token + str(expire)).encode(),
+            hashlib.sha1
+        ).hexdigest()
+        
+        return JsonResponse({
+            "token": token,
+            "expire": expire,
+            "signature": signature
+        })
+    
 class AuthStatus(APIView):
     permission_classes = [AllowAny]
 
