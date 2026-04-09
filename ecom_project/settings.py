@@ -21,7 +21,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-IN_PRODUCTION = config('IN_PRODUCTION')
+IN_PRODUCTION = config('IN_PRODUCTION', cast=bool)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if IN_PRODUCTION == True:
