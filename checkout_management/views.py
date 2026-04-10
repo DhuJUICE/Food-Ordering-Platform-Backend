@@ -19,14 +19,17 @@ from django.contrib.auth.models import User
 IN_PRODUCTION = settings.IN_PRODUCTION
 
 # PayFast credentials
-PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
-PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
+
 
 PAYFAST_URL = ""
 
 if IN_PRODUCTION == True:
+	PAYFAST_MERCHANT_ID = settings.PAYFAST_LIVE_MERCHANT_ID
+	PAYFAST_MERCHANT_KEY = settings.PAYFAST_LIVE_MERCHANT_KEY
     PAYFAST_URL = "https://www.payfast.co.za/eng/process"
 else:
+	PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
+	PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
     PAYFAST_URL = "https://sandbox.payfast.co.za/eng/process"
 
 
