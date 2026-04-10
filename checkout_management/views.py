@@ -27,12 +27,12 @@ if IN_PRODUCTION == True:
     PAYFAST_MERCHANT_ID = settings.PAYFAST_LIVE_MERCHANT_ID
     PAYFAST_MERCHANT_KEY = settings.PAYFAST_LIVE_MERCHANT_KEY
     PAYFAST_URL = "https://www.payfast.co.za/eng/process"
-	PAYFAST_IPN_VALIDATE_URL = "https://www.payfast.co.za/eng/query/validate"
+    PAYFAST_IPN_VALIDATE_URL = "https://www.payfast.co.za/eng/query/validate"
 else:
     PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
     PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
     PAYFAST_URL = "https://sandbox.payfast.co.za/eng/process"
-	PAYFAST_IPN_VALIDATE_URL = "https://sandbox.payfast.co.za/eng/query/validate"
+    PAYFAST_IPN_VALIDATE_URL = "https://sandbox.payfast.co.za/eng/query/validate"
 
 
 
