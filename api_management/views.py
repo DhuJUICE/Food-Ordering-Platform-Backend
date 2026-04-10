@@ -126,7 +126,7 @@ class CartManagement(APIView):
         return CartMainView().post(request, slug, pk)
     
     def put(self, request, slug):
-        return CartMainView().put(request)
+        return CartMainView().put(request, slug)
 
     def delete(self, request, slug, pk):
         try:
