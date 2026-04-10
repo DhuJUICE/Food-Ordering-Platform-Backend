@@ -11,14 +11,17 @@ from django.forms.models import model_to_dict
 class CartManagement(APIView):
 	"""Session-based cart API"""
 
-	def _get_cart(self, request, slug=None):
+	def _get_cart(self, request, tenant=None):
 		if not request.session.session_key:
 			request.session.create()
 	
 		session_key = request.session.session_key		
-		
 
-		cart, _ = CART.objects.get_or_create(session_key=session_key)
+		if tenant:
+			cart, _ = CART.objects.get_or_create(session_key=session_key, tenant=tenant)
+		else:
+			cart, _ = CART.objects.get_or_create(session_key=session_key)
+
 		return cart
 
 	def get(self, request, slug):
@@ -27,7 +30,7 @@ class CartManagement(APIView):
 			if not request.session.session_key:
 				request.session.create()
 			session_key = request.session.session_key
-
+			
 			# Try to get tenant
 			try:
 				tenant = TENANT.objects.get(slug=slug)
@@ -107,10 +110,15 @@ class CartManagement(APIView):
 			if not action or not product_id:
 				return JsonResponse({"success": False, "error": "Action and product_id are required"}, status=400)
 
+			
 			product = PRODUCT.objects.get(pk=product_id)
 			tenant = TENANT.objects.get(slug=slug)
+
 			cart = self._get_cart(request, tenant)
+			
+			
 			cart_item = CARTITEM.objects.get(cart=cart, product=product)
+			
 
 			if action == "increment":
 				cart_item.quantity += 1
