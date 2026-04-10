@@ -27,10 +27,12 @@ if IN_PRODUCTION == True:
     PAYFAST_MERCHANT_ID = settings.PAYFAST_LIVE_MERCHANT_ID
     PAYFAST_MERCHANT_KEY = settings.PAYFAST_LIVE_MERCHANT_KEY
     PAYFAST_URL = "https://www.payfast.co.za/eng/process"
+	PAYFAST_IPN_VALIDATE_URL = "https://www.payfast.co.za/eng/query/validate"
 else:
     PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
     PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
     PAYFAST_URL = "https://sandbox.payfast.co.za/eng/process"
+	PAYFAST_IPN_VALIDATE_URL = "https://sandbox.payfast.co.za/eng/query/validate"
 
 
 
@@ -108,7 +110,7 @@ def payfast_ipn(request):
 
     # Validate with PayFast
     response = requests.post(
-        "https://sandbox.payfast.co.za/eng/query/validate",  # change to production URL in prod
+        PAYFAST_IPN_VALIDATE_URL,  # change to production URL in prod
         data=data
     )
 
