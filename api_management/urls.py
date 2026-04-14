@@ -29,6 +29,7 @@ urlpatterns = [
     
 	#CHECKOUT MANAGEMENT API ENDPOINTS
 	path('api/checkout', views.CheckoutManagement.as_view(), name='api-checkout'),
+    path('<slug:slug>/api/checkout', views.CheckoutManagement.as_view(), name='api-checkout'),
 
 	#ORDER MANAGEMENT ROUTES
     path('api/orders/all', views.OrderManagement.as_view(), name='api-orders-dashboard'),

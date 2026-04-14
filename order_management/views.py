@@ -6,31 +6,75 @@ from tenant_management.models import TENANT
 from .models import ORDER, ORDERITEM
 from cart_management.models import CART, CARTITEM
 from django.contrib.auth.models import User
+from checkout_management.models import CHECKOUT
 
 from rest_framework import status
 from django.db import transaction
 from django.forms.models import model_to_dict
 
-def create_order_from_cart(session_key, customer_name, customer_phone, total_amount, payment_method="card"):
+from django.db import transaction
+
+def create_order_from_cart(session_key, slug):
     try:
-        cart = CART.objects.get(session_key=session_key)
-        cart_items = CARTITEM.objects.filter(cart=cart).select_related('product')
+        tenant = TENANT.objects.get(slug=slug)
+    except TENANT.DoesNotExist:
+        return {
+            "success": False,
+            "error": "Tenant not found"
+        }
 
-        if not cart_items.exists():
-            return None
+    try:
+        checkout = CHECKOUT.objects.get(session_key=session_key, tenant=tenant)
+    except CHECKOUT.DoesNotExist:
+        return {
+            "success": False,
+            "error": "Checkout not found"
+        }
 
+    cart = CART.objects.filter(
+        session_key=session_key,
+        tenant=tenant
+    ).first()
+
+    if not cart:
+        return {
+            "success": False,
+            "error": "Cart not found"
+        }
+
+    cart_items = CARTITEM.objects.filter(cart=cart).select_related('product')
+
+    if not cart_items.exists():
+        return {
+            "success": False,
+            "error": "Cart is empty"
+        }
+
+    try:
         with transaction.atomic():
-            # Create the order
+
+            # 🔒 Prevent duplicate orders (REAL check)
+            existing_order = ORDER.objects.filter(
+                tenant=tenant,
+                customer_phone=checkout.customer_phone,
+                total_amount=checkout.total_amount
+            ).exists()
+
+            if existing_order:
+                return {
+                    "success": False,
+                    "error": "Order already exists"
+                }
+
+            # ✅ Create order
             order = ORDER.objects.create(
-                tenant=cart.tenant,
-                paymentMethod=payment_method,
-                status="pending",
-                customer_name=customer_name,
-                customer_phone=customer_phone,
-                total_amount=total_amount,
+                tenant=tenant,
+                customer_name=checkout.customer_name,
+                customer_phone=checkout.customer_phone,
+                total_amount=checkout.total_amount,
             )
 
-            # Create order items from cart items
+            # ✅ Create order items
             order_items = [
                 ORDERITEM(
                     order=order,
@@ -42,13 +86,23 @@ def create_order_from_cart(session_key, customer_name, customer_phone, total_amo
             ]
             ORDERITEM.objects.bulk_create(order_items)
 
-            # Delete the cart and cart items
+            # ✅ Cleanup
             cart.delete()
+            checkout.delete()
 
-        return order
+        print("Order created successfully!")
 
-    except CART.DoesNotExist:
-        return None
+        return {
+            "success": True,
+            "order_id": order.id
+        }
+
+    except Exception as e:
+        print("ORDER ERROR:", str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 #allow users to track their order status/progress
 def get_user_orders(request, slug):

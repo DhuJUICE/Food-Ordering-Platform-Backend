@@ -49,7 +49,7 @@ ALLOWED_HOSTS = [
     'heranbites-backend.onrender.com',
     '127.0.0.1',
     'localhost',
-    'jewelry-graphics-overcome-achieving.trycloudflare.com'
+    'appropriations-characteristics-lightbox-conferencing.trycloudflare.com'
 ]
 
 # Application definition

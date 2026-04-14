@@ -153,8 +153,8 @@ class CartManagement(APIView):
 class CheckoutManagement(APIView):
     permission_classes = [AllowAny]
 
-    def post(self, request):
-        return checkout(request)
+    def post(self, request, slug):
+        return checkout(request, slug)
 
 #TRACK ORDER MANAGEMENT ENDPOINT
 class TrackOrder(APIView):
