@@ -51,8 +51,6 @@ def checkout(request, slug):
 		customer_name = str(data.get("customerName", ""))
 		customer_phone = str(data.get("customerPhone", ""))
 			
-		request.session["customer_phone"] = customer_phone
-
 		#-------------------------------
 		if not request.session.session_key:
 			request.session.create()
