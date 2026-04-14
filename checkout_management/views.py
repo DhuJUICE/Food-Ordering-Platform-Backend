@@ -90,7 +90,7 @@ def checkout(request, slug):
 		else:
 			RETURN_URL = "http://localhost:3000/success"
 			#change below notify url to local cloudflare public url
-			NOTIFY_URL = "https://appropriations-characteristics-lightbox-conferencing.trycloudflare.com"
+			NOTIFY_URL = "https://lamb-caribbean-oasis-nest.trycloudflare.com"
 			CANCEL_URL = "http://localhost:3000/failure"
 		
 		NOTIFY_URL += "/api/ipn"

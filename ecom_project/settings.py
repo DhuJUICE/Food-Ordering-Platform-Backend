@@ -52,7 +52,7 @@ ALLOWED_HOSTS = [
     'heranbites-backend.onrender.com',
     '127.0.0.1',
     'localhost',
-    'appropriations-characteristics-lightbox-conferencing.trycloudflare.com'
+    'lamb-caribbean-oasis-nest.trycloudflare.com'
 ]
 
 # Application definition

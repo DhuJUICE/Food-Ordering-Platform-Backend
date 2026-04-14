@@ -7,6 +7,8 @@ from django.utils import timezone
 class ORDER(models.Model):
 	tenant = models.ForeignKey(TENANT, on_delete=models.CASCADE)
 	
+	session_key = models.CharField(max_length=40)
+	
 	# Guest details
 	customer_name = models.CharField(max_length=100, null=True, blank=True)
 	customer_phone = models.CharField(max_length=20)
