@@ -165,3 +165,4 @@ def payfast_ipn(request):
     else:
         print("ORDER FAILED:", result["error"])
         return HttpResponse(result["error"], status=500)
+    
