@@ -22,8 +22,7 @@ from django.db import transaction
 IN_PRODUCTION = settings.IN_PRODUCTION
 
 # PayFast credentials
-PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
-PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
+
 
 PAYFAST_URL = ""
 

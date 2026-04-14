@@ -10,6 +10,9 @@ IMAGEKIT_PRIVATE_KEY = config('IMAGEKIT_PRIVATE_KEY')
 PAYFAST_TEST_MERCHANT_ID = config('PAYFAST_TEST_MERCHANT_ID')
 PAYFAST_TEST_MERCHANT_KEY = config('PAYFAST_TEST_MERCHANT_KEY')
 
+PAYFAST_LIVE_MERCHANT_ID = config('PAYFAST_LIVE_MERCHANT_ID')
+PAYFAST_LIVE_MERCHANT_KEY = config('PAYFAST_LIVE_MERCHANT_KEY')
+
 SECRET_KEY = config('SECRET_KEY')
 
 #Authentication access-token and refresh-token lifetimes
@@ -62,19 +65,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'user_management',
-	'product_management',
-	'cart_management',
-	'checkout_management',
+    'product_management',
+    'cart_management',
+    'checkout_management',
 
-	'order_management',
+    'order_management',
 
-	'tenant_management',
+    'tenant_management',
 
-	'auth_management',
+    'auth_management',
 
-	'api_management',
+    'api_management',
 
-	'rest_framework',
+    'rest_framework',
     'corsheaders',
     
     #for api documentation
@@ -115,8 +118,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-			'api_management/html_templates',
-		],
+            'api_management/html_templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -165,7 +168,7 @@ AUTH_PASSWORD_VALIDATORS = [
 #AUTHENTICATION MECHANISMS
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-		'auth_management.authentication.CookieJWTAuthentication',
+        'auth_management.authentication.CookieJWTAuthentication',
         #'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
