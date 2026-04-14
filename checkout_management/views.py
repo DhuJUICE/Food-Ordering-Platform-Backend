@@ -27,9 +27,15 @@ IN_PRODUCTION = settings.IN_PRODUCTION
 PAYFAST_URL = ""
 
 if IN_PRODUCTION == True:
+	PAYFAST_MERCHANT_ID = settings.PAYFAST_LIVE_MERCHANT_ID
+	PAYFAST_MERCHANT_KEY = settings.PAYFAST_LIVE_MERCHANT_KEY
+	
 	PAYFAST_URL = "https://www.payfast.co.za/eng/process"
 	PAYFAST_URL_VALIDATE = "https://www.payfast.co.za/eng/query/validate"
 else:
+	PAYFAST_MERCHANT_ID = settings.PAYFAST_TEST_MERCHANT_ID
+	PAYFAST_MERCHANT_KEY = settings.PAYFAST_TEST_MERCHANT_KEY
+	
 	PAYFAST_URL = "https://sandbox.payfast.co.za/eng/process"
 	PAYFAST_URL_VALIDATE = "https://sandbox.payfast.co.za/eng/query/validate"
 
@@ -44,7 +50,7 @@ def checkout(request, slug):
 		total_amount = float(data.get("totalPurchaseTotal", 0))
 		customer_name = str(data.get("customerName", ""))
 		customer_phone = str(data.get("customerPhone", ""))
-            
+			
 		request.session["customer_phone"] = customer_phone
 
 		#-------------------------------
@@ -113,56 +119,56 @@ def checkout(request, slug):
 
 @csrf_exempt
 def payfast_ipn(request):
-    if request.method != "POST":
-        return HttpResponse("Invalid request method", status=405)
+	if request.method != "POST":
+		return HttpResponse("Invalid request method", status=405)
 
-    raw_body = request.body.decode("utf-8")
-    data = {k: v[0] for k, v in parse_qs(raw_body).items()}
+	raw_body = request.body.decode("utf-8")
+	data = {k: v[0] for k, v in parse_qs(raw_body).items()}
 
-    # ✅ Validate with PayFast
-    response = requests.post(
-        PAYFAST_URL_VALIDATE,
-        data=data
-    )
+	# ✅ Validate with PayFast
+	response = requests.post(
+		PAYFAST_URL_VALIDATE,
+		data=data
+	)
 
-    if response.text != "VALID":
-        return HttpResponse("Invalid IPN", status=400)
+	if response.text != "VALID":
+		return HttpResponse("Invalid IPN", status=400)
 
-    if data.get("payment_status") != "COMPLETE":
-        return HttpResponse("Payment not complete", status=400)
+	if data.get("payment_status") != "COMPLETE":
+		return HttpResponse("Payment not complete", status=400)
 
-    # ✅ Extract identifiers
-    session_key = data.get("custom_str1")
-    slug = data.get("custom_str2")
+	# ✅ Extract identifiers
+	session_key = data.get("custom_str1")
+	slug = data.get("custom_str2")
 
-    if not session_key or not slug:
-        return HttpResponse("Missing identifiers", status=400)
+	if not session_key or not slug:
+		return HttpResponse("Missing identifiers", status=400)
 
-    # 🔒 LOCK checkout row
-    with transaction.atomic():
-        checkout = CHECKOUT.objects.select_for_update().filter(
-            session_key=session_key,
-            tenant__slug=slug
-        ).first()
+	# 🔒 LOCK checkout row
+	with transaction.atomic():
+		checkout = CHECKOUT.objects.select_for_update().filter(
+			session_key=session_key,
+			tenant__slug=slug
+		).first()
 
-        if not checkout:
-            return HttpResponse("No checkout found", status=404)
+		if not checkout:
+			return HttpResponse("No checkout found", status=404)
 
-        # 🚫 Prevent duplicate processing
-        if checkout.status == "paid":
-            return HttpResponse("Already processed", status=200)
+		# 🚫 Prevent duplicate processing
+		if checkout.status == "paid":
+			return HttpResponse("Already processed", status=200)
 
-        # ✅ Mark payment as confirmed
-        checkout.status = "paid"
-        checkout.save()
+		# ✅ Mark payment as confirmed
+		checkout.status = "paid"
+		checkout.save()
 
-    # ✅ Create order AFTER releasing lock
-    result = create_order_from_cart(session_key, slug)
+	# ✅ Create order AFTER releasing lock
+	result = create_order_from_cart(session_key, slug)
 
-    if result["success"]:
-        print(f"ORDER CREATED: {result['order_id']}")
-        return HttpResponse("Payment received", status=200)
-    else:
-        print("ORDER FAILED:", result["error"])
-        return HttpResponse(result["error"], status=500)
-    
+	if result["success"]:
+		print(f"ORDER CREATED: {result['order_id']}")
+		return HttpResponse("Payment received", status=200)
+	else:
+		print("ORDER FAILED:", result["error"])
+		return HttpResponse(result["error"], status=500)
+	
