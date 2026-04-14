@@ -61,13 +61,22 @@ def checkout(request, slug):
 		#create checkout for customer
 		tenant = TENANT.objects.get(slug=slug)
 
-		checkout = CHECKOUT.objects.create(
+		checkout, created = CHECKOUT.objects.get_or_create(
 			tenant=tenant,
 			session_key=session_key,
-			customer_phone=customer_phone,
-			customer_name=customer_name,
-			total_amount=total_amount
+			defaults={
+				"customer_phone": customer_phone,
+				"customer_name": customer_name,
+				"total_amount": total_amount
+			}
 		)
+
+		# Optional safety check
+		if checkout.status == "paid":
+			return JsonResponse({
+				"success": False,
+				"error": "This order has already been paid."
+			}, status=400)
 		
 		# Generate a unique transaction ID
 		m_payment_id = str(uuid.uuid4())
