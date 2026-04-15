@@ -29,15 +29,14 @@ class ORDER(models.Model):
 
 	# Current status of the order in the workflow
 	ORDER_STATUS_CHOICES = [
-		("pending", "Pending"),       # Order just placed, not yet started
+		("waiting", "Waiting"),       # Order just placed, not yet started
 		("preparing", "Preparing"),   # Kitchen/vendor started preparing
 		("done", "Done"),             # Order ready/completed
-		("cancelled", "Cancelled"),   # Order cancelled/failure
 	]
 	status = models.CharField(
 		max_length=15,
 		choices=ORDER_STATUS_CHOICES,
-		default="pending",
+		default="waiting",
 		help_text="Current status of the order"
 	)
 
